@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tirumula Dairy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="bar">
+    <div class="bar-inner">
+      <div class="brand">
+        <div class="bar-divider"><span></span></div>
+        <span class="brand-name">Tirumula Dairy</span>
+        <div class="bar-divider"><span></span></div>
+      </div>
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search" placeholder="Search products..." autocomplete="off">
+      </div>
+      <button class="acct-btn" id="acctBtn">
+        <div class="acct-avatar"><i class="fas fa-user"></i></div>
+        <div class="acct-info">
+          <span class="acct-name">Rajesh</span>
+          <span class="acct-role">Admin</span>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <div class="stats" id="stats">
+      <div class="stat"><div class="stat-label">Today's Revenue</div><div class="stat-val" id="statRevenue">₹0</div><div class="stat-sub">from sales today</div></div>
+      <div class="stat"><div class="stat-label">Products Sold</div><div class="stat-val" id="statQty">0</div><div class="stat-sub">units today</div></div>
+      <div class="stat"><div class="stat-label">Top Product</div><div class="stat-val" id="statTop" style="font-size:1rem">—</div><div class="stat-sub">by quantity</div></div>
+    </div>
+
+    <div class="card">
+
+      <div class="filters">
+        <select id="catFilter">
+          <option value="all">All Categories</option>
+          <option value="Milk">Milk</option>
+          <option value="Curd">Curd</option>
+          <option value="Butter">Butter</option>
+          <option value="Flavored Milk">Flavored Milk</option>
+          <option value="Paneer">Paneer</option>
+          <option value="Ghee">Ghee</option>
+          <option value="Ice Cream">Ice Cream</option>
+          <option value="Lassi">Lassi</option>
+        </select>
+        <button class="btn pri add-btn" id="addBtn"><i class="fas fa-plus"></i> Add Product</button>
+        <button class="btn sec" id="salesBtn" style="padding:8px 16px;font-size:0.78rem"><i class="fas fa-cash-register"></i> Today's Sales</button>
+        <button class="btn sec" id="pdfBtn" style="padding:8px 14px;font-size:0.78rem" title="Download Today's PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="modal" id="modal">
+    <div class="modal-hd">
+      <h3 id="modalTitle">Edit Product</h3>
+      <button id="modalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-layout">
+        <div class="modal-img-col">
+          <div class="img-upload" id="imgUpload">
+            <span class="plus">+</span>
+            <input type="file" id="eImage" accept="image/*" hidden>
+          </div>
+          <div class="img-preview" id="imgPreview" style="display:none"><img id="previewImg"><button type="button" id="imgRemove"><i class="fas fa-times"></i></button></div>
+        </div>
+        <div class="modal-fields-col">
+          <div class="field"><label>Name</label><input id="eName"></div>
+          <div class="field"><label>Category</label>
+            <select id="eCat">
+              <option>Milk</option><option>Curd</option><option>Butter</option><option>Flavored Milk</option><option>Paneer</option><option>Ghee</option><option>Ice Cream</option><option>Lassi</option>
+            </select>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Price (₹)</label><input id="ePrice" type="number"></div>
+            <div class="field"><label>Stock</label><input id="eStock" type="number"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn sec" id="modalCancel">Cancel</button>
+      <button class="btn pri" id="modalSave"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-hd">
+      <h3><i class="fas fa-cash-register"></i> Today's Sales Entry</h3>
+      <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-ft">
+      <div class="grand-total" id="grandTotal">Grand Total: ₹0</div>
+      <div class="drawer-actions">
+        <button class="btn pri" id="generateBtn" style="flex:1;justify-content:center"><i class="fas fa-receipt"></i> Generate Bill</button>
+        <button class="btn sec" id="downloadBtn" style="flex:0;padding:9px 14px"><i class="fas fa-file-pdf"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Tirumula Dairy</h4>
+        <p>Fresh dairy products delivered daily<br>with uncompromising quality.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>+91 98765 43210</p>
+        <p>info@tirumuladairy.com</p>
+      </div>
+      <div class="footer-col">
+        <h4>Address</h4>
+        <p>Beside PR Club, Muthyalapeta,<br>Gudur — 524101</p>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-divider"><span></span></div>
+        <p>&copy; 2025 Tirumula Dairy. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-wrap" id="toast"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
