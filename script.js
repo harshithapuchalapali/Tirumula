@@ -32,7 +32,8 @@ const imgRemove = document.getElementById('imgRemove');
 let uploadedImg = '';
 
 /* ========== SALES DOM ========== */
-const salesSection = document.getElementById('salesSection');
+const drawerOverlay = document.getElementById('drawerOverlay');
+const drawer = document.getElementById('drawer');
 const drawerBody = document.getElementById('drawerBody');
 const grandTotalEl = document.getElementById('grandTotal');
 const statRevenue = document.getElementById('statRevenue');
@@ -245,10 +246,21 @@ function clearDraft() {
   localStorage.removeItem('td_sales_draft');
 }
 
-document.getElementById('salesBtn').addEventListener('click', () => {
-  salesSection.classList.toggle('open');
-  if (salesSection.classList.contains('open')) renderSalesDrawer();
-});
+document.getElementById('salesBtn').addEventListener('click', openDrawer);
+
+function openDrawer() {
+  renderSalesDrawer();
+  drawerOverlay.classList.add('open');
+  drawer.classList.add('open');
+}
+
+function closeDrawer() {
+  drawerOverlay.classList.remove('open');
+  drawer.classList.remove('open');
+}
+
+drawerOverlay.addEventListener('click', closeDrawer);
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 
 document.getElementById('generateBtn').addEventListener('click', async () => {
   const items = [];
@@ -293,7 +305,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
       }
     }
     clearDraft();
-    salesSection.classList.remove('open');
+    closeDrawer();
     apply();
     await loadStats();
   } catch (e) {
