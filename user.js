@@ -95,6 +95,43 @@ document.getElementById('detailClose').addEventListener('click', closeDetail);
 overlay.addEventListener('click', closeDetail);
 function closeDetail() { overlay.classList.remove('open'); detailModal.classList.remove('open'); }
 
+/* ========== ADMIN PASSWORD ========== */
+const pwOverlay = document.getElementById('pwOverlay');
+const pwModal = document.getElementById('pwModal');
+const pwInput = document.getElementById('pwInput');
+const pwSubmit = document.getElementById('pwSubmit');
+const pwClose = document.getElementById('pwClose');
+const pwErr = document.getElementById('pwErr');
+
+document.getElementById('acctUserBtn').addEventListener('click', () => {
+  pwInput.value = '';
+  pwErr.textContent = '';
+  pwOverlay.classList.add('open');
+  pwModal.classList.add('open');
+  setTimeout(() => pwInput.focus(), 100);
+});
+
+function closePw() { pwOverlay.classList.remove('open'); pwModal.classList.remove('open') }
+
+pwClose.addEventListener('click', closePw);
+pwOverlay.addEventListener('click', closePw);
+
+pwSubmit.addEventListener('click', () => {
+  const pw = pwInput.value.trim();
+  if (pw === 'password123') {
+    localStorage.setItem('td_admin', 'true');
+    window.location.href = 'admin.html';
+  } else {
+    pwErr.textContent = 'Incorrect password';
+    pwInput.value = '';
+    pwInput.focus();
+  }
+});
+
+pwInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') pwSubmit.click();
+});
+
 /* ========== TOAST ========== */
 function show(msg, t = 's') {
   const icons = { s:'fa-check-circle', e:'fa-exclamation-circle', w:'fa-exclamation-triangle' };

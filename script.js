@@ -1,9 +1,8 @@
 const sb = window.supabase.createClient('https://wwsctdtyohiqabwtbmhn.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3c2N0ZHR5b2hpcWFid3RibWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNTYxMzEsImV4cCI6MjA5NzYzMjEzMX0.qwNRfFm4H_wocKQyz2yo5csRAXLNcPwmFZNRBLg-UT0');
 
 (async () => {
-  const { data: { user }, error } = await sb.auth.getUser();
-  if (error || !user || localStorage.getItem('td_role') !== 'admin') {
-    window.location.href = 'login.html'; return;
+  if (localStorage.getItem('td_admin') !== 'true') {
+    window.location.href = 'index.html'; return;
   }
   init();
 })();
@@ -33,8 +32,7 @@ const imgRemove = document.getElementById('imgRemove');
 let uploadedImg = '';
 
 /* ========== SALES DOM ========== */
-const drawerOverlay = document.getElementById('drawerOverlay');
-const drawer = document.getElementById('drawer');
+const salesSection = document.getElementById('salesSection');
 const drawerBody = document.getElementById('drawerBody');
 const grandTotalEl = document.getElementById('grandTotal');
 const statRevenue = document.getElementById('statRevenue');
@@ -162,10 +160,9 @@ document.getElementById('modalClose').addEventListener('click', closeModal);
 overlay.addEventListener('click', closeModal);
 function closeModal() { overlay.classList.remove('open'); modal.classList.remove('open'); editIdx = -1; }
 
-  document.getElementById('acctBtn').addEventListener('click', async () => {
-    localStorage.removeItem('td_role');
-    await sb.auth.signOut();
-    window.location.href = 'login.html';
+  document.getElementById('acctBtn').addEventListener('click', () => {
+    localStorage.removeItem('td_admin');
+    window.location.href = 'index.html';
   });
 
 /* ========== SALES SYSTEM ========== */
@@ -248,21 +245,10 @@ function clearDraft() {
   localStorage.removeItem('td_sales_draft');
 }
 
-document.getElementById('salesBtn').addEventListener('click', openDrawer);
-
-function openDrawer() {
-  renderSalesDrawer();
-  drawerOverlay.classList.add('open');
-  drawer.classList.add('open');
-}
-
-function closeDrawer() {
-  drawerOverlay.classList.remove('open');
-  drawer.classList.remove('open');
-}
-
-drawerOverlay.addEventListener('click', closeDrawer);
-document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('salesBtn').addEventListener('click', () => {
+  salesSection.classList.toggle('open');
+  if (salesSection.classList.contains('open')) renderSalesDrawer();
+});
 
 document.getElementById('generateBtn').addEventListener('click', async () => {
   const items = [];
@@ -307,7 +293,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
       }
     }
     clearDraft();
-    closeDrawer();
+    salesSection.classList.remove('open');
     apply();
     await loadStats();
   } catch (e) {
