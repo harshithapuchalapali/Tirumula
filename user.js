@@ -31,7 +31,8 @@ function render(list) {
   if (!list.length) { empty.style.display = 'flex'; return; }
   empty.style.display = 'none';
   list.forEach(p => {
-    const stockText = p.status === 'red' ? 'Out of stock' : (p.stock + ' units in stock');
+    const labels = { green: 'In stock', orange: 'Low stock', red: 'Out of stock' };
+    const stockHtml = `<span class="u-stock-dot ${p.status}"></span> ${labels[p.status] || (p.stock + ' units in stock')}`;
     grid.innerHTML += `
       <div class="u-card" data-id="${p.id}">
         <div class="u-card-img"><img src="${p.image}" alt="${p.name}"></div>
@@ -39,7 +40,7 @@ function render(list) {
           <div class="u-card-cat">${p.category}</div>
           <div class="u-card-name">${p.name}</div>
           <div class="u-card-price">₹${p.price}<span class="u-card-unit">per packet</span></div>
-          <div class="u-card-stock">${stockText}</div>
+          <div class="u-card-stock">${stockHtml}</div>
           <div class="u-card-act"><button class="u-card-btn" data-id="${p.id}">View details</button></div>
         </div>
       </div>`;
