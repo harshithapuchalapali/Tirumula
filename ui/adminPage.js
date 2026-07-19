@@ -5,6 +5,13 @@ let todaySales = JSON.parse(localStorage.getItem('td_sales') || '[]').filter(s =
   const daysOld = (Date.now() - d.getTime()) / 86400000;
   return daysOld < 7;
 });
+// Keep only the latest bill per day
+const perDay = {};
+todaySales.forEach(s => {
+  const day = new Date(s.date).toDateString();
+  perDay[day] = s;
+});
+todaySales = Object.values(perDay);
 localStorage.setItem('td_sales', JSON.stringify(todaySales));
 
 const tableBody = document.getElementById('body');
@@ -40,16 +47,29 @@ document.getElementById('modalClose').onclick = closeModal;
 overlay.onclick = closeModal;
 saveBtn.onclick = saveProduct;
 cancelBtn.onclick = closeModal;
+document.getElementById('modal').addEventListener('keydown', e => { if (e.key === 'Enter') saveProduct(); });
 
 document.getElementById('addBtn').onclick = () => openModal();
 document.getElementById('salesBtn').onclick = () => { renderDrawer(); drawerOverlay.classList.add('open'); drawer.classList.add('open'); };
-document.getElementById('pdfBtn').onclick = async () => { await generateBill(); downloadPDF(); };
+document.getElementById('pdfBtn').onclick = async () => {
+  if (getCart().length) await generateBill();
+  if (!window._billDoc) buildPDFFromTodaySales();
+  if (!window._billDoc) rebuildBillFromStorage();
+  if (window._billDoc) downloadPDF();
+};
 
 document.getElementById('actionSelect').onchange = function() {
   switch (this.value) {
     case 'add': openModal(); break;
     case 'sales': renderDrawer(); drawerOverlay.classList.add('open'); drawer.classList.add('open'); break;
-    case 'pdf': (async () => { await generateBill(); downloadPDF(); })(); break;
+    case 'pdf':
+      (async () => {
+        if (getCart().length) await generateBill();
+        if (!window._billDoc) buildPDFFromTodaySales();
+        if (!window._billDoc) rebuildBillFromStorage();
+        if (window._billDoc) downloadPDF();
+      })();
+      break;
   }
   this.value = '';
 };
@@ -119,10 +139,16 @@ function render(list) {
 function updateStats() {
   const today = new Date().toDateString();
   const todaysSales = todaySales.filter(s => new Date(s.date).toDateString() === today);
-  const rev = todaysSales.reduce((s, x) => s + x.total, 0);
-  const qty = todaysSales.reduce((s, x) => s + x.items.reduce((a, i) => a + i.qty, 0), 0);
-  const allItems = todaysSales.flatMap(x => x.items);
-  const topItem = allItems.length ? [...allItems].sort((a, b) => b.qty - a.qty)[0] : null;
+  const latest = todaysSales.length ? todaysSales[todaysSales.length - 1] : null;
+  if (!latest) {
+    document.getElementById('statRevenue').textContent = '₹0';
+    document.getElementById('statQty').textContent = '0 units';
+    statTop.textContent = '—';
+    return;
+  }
+  const rev = latest.total;
+  const qty = latest.items.reduce((a, i) => a + i.qty, 0);
+  const topItem = [...latest.items].sort((a, b) => b.qty - a.qty)[0];
   document.getElementById('statRevenue').textContent = '₹' + rev;
   document.getElementById('statQty').textContent = qty + ' units';
   statTop.textContent = topItem ? topItem.name : '—';
@@ -261,6 +287,11 @@ async function generateBill() {
   doc.setFontSize(12); doc.text('Grand Total: Rs.' + grand, 20, y);
   doc.setFontSize(8); doc.text('Thank you!', 105, y + 8, { align: 'center' });
   window._billDoc = doc;
+  const billRows = rows;
+  const billGrand = grand;
+  localStorage.setItem('td_lastBill', JSON.stringify({ rows: billRows, grand: billGrand }));
+  const todayStr = new Date().toDateString();
+  todaySales = todaySales.filter(s => new Date(s.date).toDateString() !== todayStr);
   todaySales.push({ date: new Date().toISOString(), items: cart, total: grand });
   localStorage.setItem('td_sales', JSON.stringify(todaySales));
   Object.keys(quantities).forEach(k => quantities[k] = 0);
@@ -269,6 +300,70 @@ async function generateBill() {
   updateStats();
   closeDrawer();
   UI.toast('Bill generated & stock updated', 's');
+}
+
+function buildPDFFromTodaySales() {
+  const today = new Date().toDateString();
+  const todaysSales = todaySales.filter(s => new Date(s.date).toDateString() === today);
+  if (!todaysSales.length) return;
+  const agg = {};
+  todaysSales.forEach(s => {
+    s.items.forEach(item => {
+      if (!agg[item.id]) agg[item.id] = { ...item, qty: 0 };
+      agg[item.id].qty += item.qty;
+    });
+  });
+  const items = Object.values(agg);
+  let grand = 0;
+  const rows = [];
+  items.forEach(item => {
+    const ln = item.price * item.qty;
+    grand += ln;
+    rows.push([item.name, item.stock, item.qty, item.stock - item.qty, 'Rs.' + item.price, 'Rs.' + ln]);
+  });
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
+  doc.setFontSize(14); doc.text('Tirumula Dairy', 105, y, { align: 'center' }); y += 7;
+  doc.setFontSize(8); doc.text('Beside PR Club, Muthyalapeta, Gudur — 524101', 105, y, { align: 'center' }); y += 5;
+  doc.setFontSize(9); doc.text('Date: ' + new Date().toLocaleDateString(), 20, y); y += 6;
+  doc.autoTable({
+    startY: y,
+    head: [['Product', 'Opening Stock', 'Sold', 'Closing Stock', 'Price', 'Total']],
+    body: rows,
+    theme: 'grid',
+    styles: { fontSize: 8, cellPadding: 2, font: 'Helvetica' },
+    headStyles: { fillColor: [194,105,45] },
+    margin: { left: 15, right: 15 }
+  });
+  y = doc.lastAutoTable.finalY + 8;
+  doc.setFontSize(12); doc.text('Grand Total: Rs.' + grand, 20, y);
+  doc.setFontSize(8); doc.text('Thank you!', 105, y + 8, { align: 'center' });
+  window._billDoc = doc;
+}
+
+function rebuildBillFromStorage() {
+  const saved = JSON.parse(localStorage.getItem('td_lastBill'));
+  if (!saved || !saved.rows || !saved.rows.length) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
+  doc.setFontSize(14); doc.text('Tirumula Dairy', 105, y, { align: 'center' }); y += 7;
+  doc.setFontSize(8); doc.text('Beside PR Club, Muthyalapeta, Gudur — 524101', 105, y, { align: 'center' }); y += 5;
+  doc.setFontSize(9); doc.text('Date: ' + new Date().toLocaleDateString(), 20, y); y += 6;
+  doc.autoTable({
+    startY: y,
+    head: [['Product', 'Opening Stock', 'Sold', 'Closing Stock', 'Price', 'Total']],
+    body: saved.rows,
+    theme: 'grid',
+    styles: { fontSize: 8, cellPadding: 2, font: 'Helvetica' },
+    headStyles: { fillColor: [194,105,45] },
+    margin: { left: 15, right: 15 }
+  });
+  y = doc.lastAutoTable.finalY + 8;
+  doc.setFontSize(12); doc.text('Grand Total: Rs.' + saved.grand, 20, y);
+  doc.setFontSize(8); doc.text('Thank you!', 105, y + 8, { align: 'center' });
+  window._billDoc = doc;
 }
 
 function downloadPDF() {
