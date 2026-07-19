@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tirumula Dairy</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥛</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,20 +45,32 @@
     <div class="card">
 
       <div class="filters">
-        <select id="catFilter">
-          <option value="all">All Categories</option>
-          <option value="Milk">Milk</option>
-          <option value="Curd">Curd</option>
-          <option value="Butter">Butter</option>
-          <option value="Flavored Milk">Flavored Milk</option>
-          <option value="Paneer">Paneer</option>
-          <option value="Ghee">Ghee</option>
-          <option value="Ice Cream">Ice Cream</option>
-          <option value="Lassi">Lassi</option>
-        </select>
-        <button class="btn pri add-btn" id="addBtn"><i class="fas fa-plus"></i> Add Product</button>
-        <button class="btn sec" id="salesBtn" style="padding:8px 16px;font-size:0.78rem"><i class="fas fa-cash-register"></i> Today's Sales</button>
-        <button class="btn sec" id="pdfBtn" style="padding:8px 14px;font-size:0.78rem" title="Download Today's PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+        <div class="filter-left">
+          <button class="btn pri add-btn dt-only" id="addBtn"><i class="fas fa-plus"></i> Add Product</button>
+          <button class="btn sec dt-only" id="salesBtn" style="padding:8px 16px;font-size:0.78rem"><i class="fas fa-cash-register"></i> Today's Sales</button>
+          <button class="btn sec dt-only" id="pdfBtn" style="padding:8px 14px;font-size:0.78rem" title="Download Today's PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
+        <div class="filter-right">
+          <select id="catFilter">
+            <option value="all">All Categories</option>
+            <option value="Milk">Milk</option>
+            <option value="Curd">Curd</option>
+            <option value="Butter">Butter</option>
+            <option value="Flavored Milk">Flavored Milk</option>
+            <option value="Paneer">Paneer</option>
+            <option value="Ghee">Ghee</option>
+            <option value="Ice Cream">Ice Cream</option>
+            <option value="Lassi">Lassi</option>
+          </select>
+          <div class="mb-only" style="position:relative">
+            <select id="actionSelect" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;font-weight:500;color:var(--text);background:var(--bg);cursor:pointer;outline:none">
+              <option value="">Menu</option>
+              <option value="add">Add Product</option>
+              <option value="sales">Today's Sales</option>
+              <option value="pdf">PDF</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="scroll">
         <table>
@@ -124,6 +137,7 @@
     <div class="drawer-ft">
       <div class="grand-total" id="grandTotal">Grand Total: ₹0</div>
       <div class="drawer-actions">
+        <button class="btn sec" id="clearBtn" style="flex:0"><i class="fas fa-undo"></i></button>
         <button class="btn pri" id="generateBtn" style="flex:1;justify-content:center"><i class="fas fa-receipt"></i> Generate Bill</button>
         <button class="btn sec" id="downloadBtn" style="flex:0;padding:9px 14px"><i class="fas fa-file-pdf"></i></button>
       </div>
@@ -154,6 +168,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="script.js"></script>
+  <script src="domain/product.js"></script>
+  <script src="domain/stockService.js"></script>
+  <script src="data/productRepo.js"></script>
+  <script src="ui/shared.js"></script>
+  <script src="ui/adminPage.js"></script>
 </body>
 </html>
