@@ -39,8 +39,6 @@ const UI = {
         if (error || !data) { err.textContent = 'Run supabase-setup.sql first — admins table missing or no admin row'; return; }
         const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
         const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
-        console.log('Entered hash:', hex);
-        console.log('Stored hash:', data.password_hash);
         if (hex === data.password_hash) {
           localStorage.setItem('td_admin', 'true');
           window.location.href = 'admin.html';
