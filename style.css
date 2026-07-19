@@ -27,17 +27,20 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 /* bar */
 .bar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-light); }
 .bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 56px; display: flex; align-items: center; gap: 24px; }
-.brand { display:flex; flex-direction:column; align-items:center; gap:2px }
-.bar-divider { display:flex; align-items:center; justify-content:center }
-.bar-divider span { display:block; width:40px; height:16px; border:1.5px solid var(--primary); border-color:var(--primary) transparent transparent transparent; border-radius:50% 50% 0 0/100% 100% 0 0 }
+.bar-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px }
+.brand { display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0 }
+.bar-divider { display:flex; align-items:center; justify-content:center; line-height:0 }
+.bar-divider span { display:block; width:60px; height:12px; border:2px solid var(--primary); border-color:var(--primary) transparent transparent transparent; border-radius:50% 50% 0 0/100% 100% 0 0 }
+.bar-divider:first-of-type { margin-bottom: -4px }
+.bar-divider:last-of-type { margin-top: -4px }
 .brand .bar-divider:last-of-type span { border-color:transparent transparent var(--primary) transparent; border-radius:0 0 50% 50%/0 0 100% 100% }
-.brand-name { font-size: 1rem; font-weight: 600; color: var(--text); letter-spacing: -0.2px }
-.search-wrap { position: relative; flex: 1; max-width: 280px; }
+.brand-name { font-size: 1rem; font-weight: 600; color: #000; letter-spacing: -0.2px; white-space: nowrap; line-height: 1 }
+.search-wrap { position: relative; flex: 1; max-width: 360px; }
 .search-wrap i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.78rem; color: var(--text3); pointer-events: none; }
 .search-wrap input { width: 100%; height: 34px; padding: 0 11px 0 33px; font-size: 0.82rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); transition: all 0.15s; }
 .search-wrap input:focus { border-color: var(--primary); background: var(--card); outline: none }
 .search-wrap input::placeholder { color: var(--text3); }
-.acct-btn { display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 6px; border: none; background: transparent; cursor: pointer; transition: all 0.15s; margin-left: auto; flex-shrink: 0; }
+.acct-btn { display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 20px; border: none; background: transparent; cursor: pointer; transition: all 0.15s; margin-left: auto; flex-shrink: 0; }
 .acct-btn:hover { background: var(--border-light); }
 .acct-name { font-size: 0.82rem; font-weight: 500; color: var(--text2); line-height: 1.2; letter-spacing: -0.05px; }
 .acct-role { font-size: 0.72rem; font-weight: 400; color: var(--text3); margin-left: 4px }
@@ -258,12 +261,14 @@ body.user-page { background: var(--bg) }
   .stat-val { font-size: 1.2rem }
 }
 @media (max-width: 600px) {
-  .bar-inner { padding: 0 12px; gap: 8px; }
-  .bar-inner .brand-name { font-size: 0.85rem }
+  .bar-inner { padding: 8px 12px; gap: 6px; flex-wrap: wrap; height: auto }
+  .bar-inner .brand { order: 1; width: auto }
+  .bar-inner .search-wrap { order: 3; flex: 1 1 100%; max-width: 100% }
+  .bar-inner .acct-btn, .bar-inner .admin-link { order: 2; margin-left: auto }
+  .bar-inner .brand-name { font-size: 0.82rem }
   .content { padding: 12px 8px 24px; }
-  .search-wrap { max-width: none; }
   .search-wrap input { font-size: 0.78rem }
-  .brand span { display: none; }
+  .bar-divider span { width: 36px; height: 8px; border-width: 1.5px }
   .row2 { grid-template-columns: 1fr; }
   .filters { flex-direction: column; gap: 6px; padding: 10px 12px }
   .filter-right { flex-direction: row; justify-content: space-between }
@@ -292,8 +297,8 @@ body.user-page { background: var(--bg) }
   .acct-avatar { width: 26px; height: 26px; font-size: 0.75rem }
 }
 @media (max-width: 400px) {
-  .bar-inner { gap: 6px }
-  .bar-inner .brand-name { font-size: 0.78rem }
-  .bar-divider span { width: 24px; height: 10px }
-  .admin-link { padding: 4px 10px; font-size: 0.75rem }
+  .bar-inner { gap: 4px }
+  .bar-inner .brand-name { font-size: 0.75rem }
+  .bar-divider span { width: 22px; height: 9px }
+  .admin-link { padding: 4px 8px; font-size: 0.72rem }
 }
