@@ -20,7 +20,13 @@ const StockService = {
       case 'price-asc': return sorted.sort((a, b) => a.price - b.price);
       case 'price-desc': return sorted.sort((a, b) => b.price - a.price);
       case 'stock': return sorted.sort((a, b) => b.stock - a.stock);
-      case 'name': return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'name': return sorted.sort((a, b) => {
+        const na = a.name.toLowerCase().trim();
+        const nb = b.name.toLowerCase().trim();
+        if (na < nb) return -1;
+        if (na > nb) return 1;
+        return 0;
+      });
       default: return sorted;
     }
   },
