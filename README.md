@@ -1,4 +1,4 @@
-# Tirumula Dairy — Full-Stack Dairy Management
+# Tirumula Dairy — Full-Stack POS & Inventory Management System
 
 A web app for a dairy shop with a **public product catalog** and an **admin POS/inventory panel**.
 
