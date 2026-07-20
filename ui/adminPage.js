@@ -98,9 +98,25 @@ async function load() {
   try {
     products = await ProductRepo.getAll();
     products.forEach(p => { if (quantities[p.id] === undefined) quantities[p.id] = 0; });
+    await syncSalesFromSupabase();
     apply();
     updateStats();
   } catch { UI.toast('Failed to load', 'e'); }
+}
+
+async function syncSalesFromSupabase() {
+  try {
+    const { data } = await sb.from('daily_sales').select('*').gte('sale_date', new Date().toISOString().slice(0,10)).order('created_at', { ascending: false });
+    if (data && data.length) {
+      data.forEach(row => {
+        const existing = todaySales.findIndex(s => new Date(s.date).toDateString() === new Date(row.created_at).toDateString());
+        const entry = { date: row.created_at, items: row.items_json || [], total: row.total_amount };
+        if (existing >= 0) todaySales[existing] = entry;
+        else todaySales.push(entry);
+      });
+      localStorage.setItem('td_sales', JSON.stringify(todaySales));
+    }
+  } catch { /* fallback to localStorage */ }
 }
 
 function apply() {
@@ -294,6 +310,9 @@ async function generateBill() {
   todaySales = todaySales.filter(s => new Date(s.date).toDateString() !== todayStr);
   todaySales.push({ date: new Date().toISOString(), items: cart, total: grand });
   localStorage.setItem('td_sales', JSON.stringify(todaySales));
+  try {
+    await sb.from('daily_sales').insert({ sale_date: new Date().toISOString().slice(0,10), total_amount: grand, items_json: JSON.stringify(cart) });
+  } catch { /* ignore */ }
   Object.keys(quantities).forEach(k => quantities[k] = 0);
   await load();
   renderDrawer();
